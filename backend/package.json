@@ -1,0 +1,15 @@
+{
+  "name": "repo_realm_backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Ujjwal Bhadani",
+  "license": "ISC",
+  "description": "This is fully functional Github clone",
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
+}
