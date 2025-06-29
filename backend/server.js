@@ -13,14 +13,14 @@ const {
 yargs(hideBin(process.argv))
   .command("init", "Initialize a new repository", {}, initRepo)
   .command(
-    "add <file>",
+    "add <files...>",
     "Add a file to repository",
     (yargs) =>
-      yargs.positional("file", {
+      yargs.positional("files", {
         describe: "File to add to the staging area",
         type: "string",
       }),
-    (argv) => addFiles(argv.file)
+    (argv) => addFiles(argv.files)
   )
   .command(
     "commit <message>",
