@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "This is fully functional Github clone",
   "dependencies": {
+    "uuid": "^11.1.0",
     "yargs": "^17.7.2"
   }
 }

@@ -20,7 +20,7 @@ yargs(hideBin(process.argv))
         describe: "File to add to the staging area",
         type: "string",
       }),
-    (yargs) => addFiles(yargs)
+    (argv) => addFiles(argv.file)
   )
   .command(
     "commit <message>",
@@ -30,7 +30,7 @@ yargs(hideBin(process.argv))
         describe: "Commit message",
         type: "string",
       }),
-    commitRepo
+    (argv) => commitRepo(argv.message)
   )
   .command("push", "Push commit to S3", {}, pushRepo)
   .command("pull", "Pull commit to S3", {}, pullRepo)
