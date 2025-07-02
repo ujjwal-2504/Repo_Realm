@@ -43,7 +43,7 @@ yargs(hideBin(process.argv))
         describe: "Commit id to revert to",
         type: "string",
       }),
-    revertRepo
+    (argv) => revertRepo(argv.commitId)
   )
   .command("debug", "To run debugger function", {}, debugStorage)
   .demandCommand(1, "You need to give atleast one command")
