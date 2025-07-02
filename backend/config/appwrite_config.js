@@ -1,14 +1,17 @@
-const { Client, Storage } = require("node-appwrite");
 const { envConfig } = require("../env_import/envConfig");
+const sdk = require("node-appwrite");
 
 // Initialize Appwrite client
-const client = new Client();
+const client = new sdk.Client();
 client
   .setEndpoint(envConfig.appwriteEndpointUrl)
   .setProject(envConfig.projectId)
   .setKey(envConfig.appwriteApiKey);
 
 // Initialize storage
-const storage = new Storage(client);
+const storage = new sdk.Storage(client);
 
-module.exports = { client, storage };
+//Initialize database
+const databases = new sdk.Databases(client);
+
+module.exports = { client, storage, databases };

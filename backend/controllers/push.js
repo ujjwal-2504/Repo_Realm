@@ -1,6 +1,6 @@
 const fs = require("fs").promises;
 const path = require("path");
-const { storage } = require("../config/appwrite_config");
+const { storage, databases } = require("../config/appwrite_config");
 const { envConfig } = require("../env_import/envConfig");
 const { InputFile } = require("node-appwrite/file");
 
@@ -47,21 +47,36 @@ async function pushRepo() {
 
           const inputFile = InputFile.fromPath(filePath, file);
 
-          // Upload to Appwrite Storage WITH METADATA (the sticky note!)
+          // Upload to Appwrite Storage
           const result = await storage.createFile(
             envConfig.bucketId,
             fileId,
             inputFile,
-            undefined, // permissions (keep default)
-            {
-              // THIS IS THE STICKY NOTE - stores extra info about the file
-              fullCommitId: commitDir, // The FULL long commit ID
-              originalPath: `commits/${commitDir}/${file}`, // Original folder structure
-              fileName: file, // Original file name
-            }
+            undefined // permissions (keep default)
           );
-
           console.log(`✓ Uploaded: ${file} (ID: ${result.$id})`);
+
+          // Save file metadata to database
+          try {
+            await databases.createDocument(
+              envConfig.appwriteDatabaseId,
+              envConfig.appwriteCollectionId,
+              "unique()", // Let Appwrite generate document ID
+              {
+                fileId: result.$id,
+                fullCommitId: commitDir,
+                originalPath: `commits/${commitDir}/${file}`,
+                fileName: file,
+                commitTimestamp: new Date().toISOString(),
+              }
+            );
+            console.log(`✓ Metadata saved for: ${file}`);
+          } catch (metadataError) {
+            console.error(
+              `✗ Failed to save metadata for ${file}:`,
+              metadataError.message
+            );
+          }
         } catch (uploadError) {
           console.error(`✗ Failed to upload ${file}:`, uploadError.message);
         }

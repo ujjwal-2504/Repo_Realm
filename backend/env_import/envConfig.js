@@ -5,6 +5,8 @@ const envConfig = {
   projectId: String(process.env.PROJECT_ID),
   bucketId: String(process.env.BUCKET_ID),
   appwriteApiKey: String(process.env.APPWRITE_API_KEY),
+  appwriteDatabaseId: String(process.env.APPWRITE_DATABASE_ID),
+  appwriteCollectionId: String(process.env.APPWRITE_COLLECTION_ID),
 };
 
 module.exports = { envConfig };

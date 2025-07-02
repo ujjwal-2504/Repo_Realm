@@ -4,6 +4,7 @@ const { revertRepo } = require("./revert.js");
 const { pushRepo } = require("./push.js");
 const { commitRepo } = require("./commit.js");
 const { pullRepo } = require("./pull.js");
+const { debugStorage } = require("./debugStorage.js");
 
 module.exports = {
   initRepo,
@@ -12,4 +13,5 @@ module.exports = {
   pushRepo,
   commitRepo,
   pullRepo,
+  debugStorage,
 };

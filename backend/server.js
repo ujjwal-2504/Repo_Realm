@@ -8,6 +8,7 @@ const {
   pullRepo,
   revertRepo,
   commitRepo,
+  debugStorage,
 } = require("./controllers");
 
 yargs(hideBin(process.argv))
@@ -44,5 +45,6 @@ yargs(hideBin(process.argv))
       }),
     revertRepo
   )
+  .command("debug", "To run debugger function", {}, debugStorage)
   .demandCommand(1, "You need to give atleast one command")
   .help().argv;
