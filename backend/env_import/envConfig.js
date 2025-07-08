@@ -7,6 +7,8 @@ const envConfig = {
   appwriteApiKey: String(process.env.APPWRITE_API_KEY),
   appwriteDatabaseId: String(process.env.APPWRITE_DATABASE_ID),
   appwriteCollectionId: String(process.env.APPWRITE_COLLECTION_ID),
+  mongoDbUri: String(process.env.MONGODB_URI),
+  port: String(process.env.PORT),
 };
 
 module.exports = { envConfig };

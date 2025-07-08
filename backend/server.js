@@ -1,5 +1,15 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const http = require("http");
+const { Server } = require("socket.io");
+
 const yargs = require("yargs"); // to read command arguments from terminal
 const { hideBin } = require("yargs/helpers"); // to automatically extract the terminal command
+
+const { envConfig } = require("./env_import/envConfig");
 
 const {
   initRepo,
@@ -11,7 +21,10 @@ const {
   debugStorage,
 } = require("./controllers");
 
+dotenv.config();
+
 yargs(hideBin(process.argv))
+  .command("start", "Starting the server", {}, startServer)
   .command("init", "Initialize a new repository", {}, initRepo)
   .command(
     "add <files...>",
@@ -48,3 +61,54 @@ yargs(hideBin(process.argv))
   .command("debug", "To run debugger function", {}, debugStorage)
   .demandCommand(1, "You need to give atleast one command")
   .help().argv;
+
+function startServer() {
+  const app = express();
+  const port = envConfig.port || 3000;
+  const mongoDbUri = envConfig.mongoDbUri;
+
+  app.use(bodyParser.json());
+  app.use(express.json());
+
+  mongoose
+    .connect(mongoDbUri)
+    .then(() => console.log("MongoDB Connected"))
+    .catch((err) => console.error("Unable to connect with DB: ", err));
+
+  app.use(cors({ origin: "*" }));
+
+  app.get("/", (req, res) => {
+    res.send("Hello");
+  });
+
+  let user = "test";
+
+  const httpServer = http.createServer(app);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
+
+  io.on("connection", (socket) => {
+    socket.on("joinRoom", (userId) => {
+      user = userId;
+      console.log("=======");
+      console.log(user);
+      console.log("=======");
+      socket.join(userId);
+    });
+  });
+
+  const db = mongoose.connection;
+
+  db.once("open", async () => {
+    console.log("CURD operations called");
+    //CRUD Operation
+  });
+
+  httpServer.listen(port, () => {
+    console.log(`Server is running on PORT ${port}`);
+  });
+}

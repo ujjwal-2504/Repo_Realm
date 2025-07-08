@@ -47,6 +47,15 @@ async function pushRepo() {
 
           const inputFile = InputFile.fromPath(filePath, file);
 
+          // if (inputFile.name === "commit.json") {
+          //   console.log(`${typeof inputFile}: `, inputFile);
+          //   console.log(filePath);
+          //   console.log(
+          //     "Read file",
+          //     await fs.readFile(filePath, { encoding: "utf8" })
+          //   );
+          // }
+
           // Upload to Appwrite Storage
           const result = await storage.createFile(
             envConfig.bucketId,
