@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const http = require("http");
 const { Server } = require("socket.io");
+const mainRouter = require("./Routes/main.router");
 
 const yargs = require("yargs"); // to read command arguments from terminal
 const { hideBin } = require("yargs/helpers"); // to automatically extract the terminal command
@@ -77,9 +78,7 @@ function startServer() {
 
   app.use(cors({ origin: "*" }));
 
-  app.get("/", (req, res) => {
-    res.send("Hello");
-  });
+  app.use("/", mainRouter);
 
   let user = "test";
 
