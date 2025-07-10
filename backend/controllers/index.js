@@ -5,14 +5,6 @@ const { pushRepo } = require("./push.js");
 const { commitRepo } = require("./commit.js");
 const { pullRepo } = require("./pull.js");
 const { debugStorage } = require("./debugStorage.js");
-const {
-  getAllUsers,
-  getUserProfile,
-  updateUserProfile,
-  deleteUserProfile,
-  signup,
-  login,
-} = require("./userController.js");
 
 module.exports = {
   initRepo,
@@ -22,10 +14,4 @@ module.exports = {
   commitRepo,
   pullRepo,
   debugStorage,
-  getAllUsers,
-  getUserProfile,
-  updateUserProfile,
-  deleteUserProfile,
-  signup,
-  login,
 };
