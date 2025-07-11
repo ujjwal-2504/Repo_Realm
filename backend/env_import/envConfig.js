@@ -9,6 +9,7 @@ const envConfig = {
   appwriteCollectionId: String(process.env.APPWRITE_COLLECTION_ID),
   mongoDbUri: String(process.env.MONGODB_URI),
   port: String(process.env.PORT),
+  jwtSecretKey: String(process.env.JWT_SECRET_KEY),
 };
 
-module.exports = { envConfig };
+module.exports = envConfig;

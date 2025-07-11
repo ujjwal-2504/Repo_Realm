@@ -30,7 +30,7 @@ const UserSchema = new Schema({
       ref: "User",
     },
   ],
-  staredRepos: [
+  starredRepos: [
     {
       default: [],
       type: Schema.Types.ObjectId,

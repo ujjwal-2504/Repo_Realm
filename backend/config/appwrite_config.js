@@ -1,4 +1,4 @@
-const { envConfig } = require("../env_import/envConfig");
+const envConfig = require("../env_import/envConfig");
 const sdk = require("node-appwrite");
 
 // Initialize Appwrite client

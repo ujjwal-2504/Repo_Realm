@@ -10,7 +10,7 @@ const mainRouter = require("./Routes/main.router");
 const yargs = require("yargs"); // to read command arguments from terminal
 const { hideBin } = require("yargs/helpers"); // to automatically extract the terminal command
 
-const { envConfig } = require("./env_import/envConfig");
+const envConfig = require("./env_import/envConfig");
 
 const {
   initRepo,
