@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ReturnDocument } = require("mongodb");
 require("dotenv").config();
 const { mongoDbUri, jwtSecretKey } = require("../env_import/envConfig");
+var ObjectId = require("mongodb").ObjectId;
 
 let client;
 
@@ -13,8 +14,18 @@ async function connectClient() {
   }
 }
 
-const getAllUsers = (req, res) => {
-  res.send("All users fetched!");
+const getAllUsers = async (req, res) => {
+  try {
+    await connectClient();
+    const db = client.db("repoRealm");
+    const usersCollection = db.collection("users");
+
+    const user = await usersCollection.find({}).toArray();
+    res.json(user);
+  } catch (error) {
+    console.error("Error during fetching: ", error.message);
+    res.status(500).send("Server Error");
+  }
 };
 
 const signup = async (req, res) => {
@@ -46,8 +57,6 @@ const signup = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
-    console.log(4);
 
     const newUser = {
       username,
@@ -105,16 +114,85 @@ const login = async (req, res) => {
   }
 };
 
-const getUserProfile = (req, res) => {
-  res.send("Profile feached!");
+const getUserProfile = async (req, res) => {
+  const currentId = req.params.id;
+
+  try {
+    await connectClient();
+    const db = client.db("repoRealm");
+    const usersCollection = db.collection("users");
+
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(currentId),
+    });
+
+    //user not found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.send(user);
+  } catch (error) {
+    console.error("Error during fetching: ", error.message);
+    res.status(500).send("Server Error");
+  }
 };
 
-const updateUserProfile = (req, res) => {
-  res.send("Profile updated!");
+const updateUserProfile = async (req, res) => {
+  const currentId = req.params.id;
+  const { email, password } = req.body;
+
+  try {
+    await connectClient();
+    const db = client.db("repoRealm");
+    const usersCollection = db.collection("users");
+
+    let updateFields = { email };
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      updateFields.password = hashedPassword;
+    }
+
+    const result = await usersCollection.findOneAndUpdate(
+      { _id: new ObjectId(currentId) },
+      { $set: updateFields },
+      { returnDocument: "after" }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.send(result);
+  } catch (error) {
+    console.error("Error during fetching: ", error.message);
+    res.status(500).send("Server Error");
+  }
 };
 
-const deleteUserProfile = (req, res) => {
-  res.send("Profile deleted!");
+const deleteUserProfile = async (req, res) => {
+  const currentId = req.params.id;
+
+  try {
+    await connectClient();
+    const db = client.db("repoRealm");
+    const usersCollection = db.collection("users");
+
+    const result = await usersCollection.deleteOne({
+      _id: new ObjectId(currentId),
+    });
+
+    if (!result.deletCount == 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User Profile Deleted" });
+  } catch (error) {
+    console.error("Error during fetching: ", error.message);
+    res.status(500).send("Server Error");
+  }
 };
 
 module.exports = {
