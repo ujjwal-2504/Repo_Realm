@@ -32,6 +32,6 @@ const RepositorySchema = new Schema({
   ],
 });
 
-const Repository = model("Repo", RepositorySchema);
+const Repository = model("Repository", RepositorySchema);
 
-export default Repository;
+module.exports = Repository;
