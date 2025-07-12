@@ -23,4 +23,4 @@ const IssueSchema = new Schema({
 });
 
 const Issue = model("Issue", IssueSchema);
-export default Issue;
+module.exports = Issue;
