@@ -24,7 +24,7 @@ const getAllUsers = async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error("Error during fetching: ", error.message);
-    res.status(500).send("Server Error");
+    res.status(500).send("Server Error", error.message);
   }
 };
 
@@ -76,7 +76,7 @@ const signup = async (req, res) => {
     res.json({ token });
   } catch (error) {
     console.error("Error during signup: ", error.message);
-    res.status(500).send("Server Error");
+    res.status(500).send("Server Error", error.message);
   }
 };
 
@@ -134,7 +134,7 @@ const getUserProfile = async (req, res) => {
     res.send(user);
   } catch (error) {
     console.error("Error during fetching: ", error.message);
-    res.status(500).send("Server Error");
+    res.status(500).send("Server Error", error.message);
   }
 };
 
@@ -168,7 +168,7 @@ const updateUserProfile = async (req, res) => {
     res.send(result);
   } catch (error) {
     console.error("Error during fetching: ", error.message);
-    res.status(500).send("Server Error");
+    res.status(500).send("Server Error", error.message);
   }
 };
 
@@ -191,7 +191,7 @@ const deleteUserProfile = async (req, res) => {
     res.json({ message: "User Profile Deleted" });
   } catch (error) {
     console.error("Error during fetching: ", error.message);
-    res.status(500).send("Server Error");
+    res.status(500).send("Server Error", error.message);
   }
 };
 
