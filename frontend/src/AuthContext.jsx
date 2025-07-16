@@ -1,12 +1,12 @@
 import { useState, useEffect, useContext, createContext } from "react";
 
-const AuthContext = new createContext();
+const AuthContext = createContext();
 
 export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-export const AuthProvider = ({ childern }) => {
+export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -22,7 +22,7 @@ export const AuthProvider = ({ childern }) => {
   };
 
   return (
-    <AuthContext.Provider value={value}> {childern} </AuthContext.Provider>
+    <AuthContext.Provider value={value}> {children} </AuthContext.Provider>
   );
 };
 
