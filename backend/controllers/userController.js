@@ -3,6 +3,10 @@ const bcrypt = require("bcryptjs");
 const { MongoClient, ReturnDocument } = require("mongodb");
 require("dotenv").config();
 const { mongoDbUri, jwtSecretKey } = require("../env_import/envConfig");
+const {
+  validatePassword,
+  validateEmail,
+} = require("../utils/validateCredentials");
 var ObjectId = require("mongodb").ObjectId;
 
 let client;
@@ -36,10 +40,15 @@ const signup = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  if (password.length < 6) {
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 6 characters" });
+  if (!validatePassword(password)) {
+    return res.status(400).json({
+      message:
+        "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one special character and one number",
+    });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
   }
 
   try {
@@ -70,10 +79,10 @@ const signup = async (req, res) => {
     const result = await usersCollection.insertOne(newUser);
 
     const token = jwt.sign({ id: result.insertedId }, jwtSecretKey, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
 
-    res.json({ token });
+    res.json({ token, userId: result.insertedId });
   } catch (error) {
     console.error("Error during signup: ", error.message);
     res.status(500).send("Server Error", error.message);
@@ -81,16 +90,31 @@ const signup = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { usernameOrEmail, password } = req.body;
 
   try {
+    if (!validatePassword(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one special character and one number",
+      });
+    }
+
     await connectClient();
     const db = client.db("repoRealm");
     const usersCollection = db.collection("users");
 
-    const user = await usersCollection.findOne({
-      email,
-    });
+    let user;
+
+    if (validateEmail(usernameOrEmail)) {
+      user = await usersCollection.findOne({
+        email: usernameOrEmail,
+      });
+    } else {
+      user = await usersCollection.findOne({
+        username: usernameOrEmail,
+      });
+    }
 
     //user not found
     if (!user) {
@@ -104,7 +128,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, jwtSecretKey, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
 
     res.json({ token, userId: user._id });
