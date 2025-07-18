@@ -1,5 +1,6 @@
 const express = require("express");
 const repoController = require("../controllers/repoController");
+const { authUser } = require("../middleware/authMiddleware");
 
 const repoRouter = express.Router();
 
@@ -10,7 +11,11 @@ repoRouter.post("/create", repoController.createRepository);
 repoRouter.get("/all", repoController.getAllRepositories);
 
 // Get current user's repositories
-repoRouter.get("/user/repos", repoController.fetchRepositoryForCurrentUser);
+repoRouter.get(
+  "/user/repos",
+  authUser,
+  repoController.fetchRepositoryForCurrentUser
+);
 
 // Star/unstar repository
 repoRouter.post("/:id/star", repoController.toggleStar);
