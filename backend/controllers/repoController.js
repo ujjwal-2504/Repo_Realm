@@ -351,19 +351,73 @@ const manageCollaborators = async (req, res) => {
 };
 
 // New function to star/unstar repository
+// const toggleStar = async (req, res) => {
+//   const { id } = req.params;
+//   const { userId } = req.user;
+
+//   try {
+//     const repository = await Repository.findById(id);
+
+//     if (!repository) {
+//       return res.status(404).json({ error: "Repository not found!" });
+//     }
+
+//     // Check if repository is accessible
+//     if (!repository.visibility && repository.owner.toString() !== userId) {
+//       const isCollaborator = repository.collaborators.includes(userId);
+//       if (!isCollaborator) {
+//         return res
+//           .status(403)
+//           .json({ error: "Access denied to private repository" });
+//       }
+//     }
+
+//     // Check if user already starred this repository
+//     const hasStarred = repository.stars.includes(userId);
+
+//     if (hasStarred) {
+//       // Remove star
+//       repository.stars = repository.stars.filter(
+//         (starUserId) => starUserId.toString() !== userId
+//       );
+//     } else {
+//       // Add star
+//       repository.stars.push(userId);
+//     }
+
+//     const updatedRepo = await repository.save();
+
+//     res.json({
+//       message: hasStarred
+//         ? "Repository unstarred successfully!"
+//         : "Repository starred successfully!",
+//       starCount: updatedRepo.stars.length,
+//       hasStarred: !hasStarred,
+//     });
+//   } catch (error) {
+//     console.error("Error during star toggle: ", error.message);
+//     res.status(500).send("Server Error");
+//   }
+// };
+
+// Updated toggleStar function for repo controller
 const toggleStar = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.user;
 
   try {
-    const repository = await Repository.findById(id);
+    // Find repository and populate owner info for better error handling
+    const repository = await Repository.findById(id).populate(
+      "owner",
+      "username"
+    );
 
     if (!repository) {
       return res.status(404).json({ error: "Repository not found!" });
     }
 
     // Check if repository is accessible
-    if (!repository.visibility && repository.owner.toString() !== userId) {
+    if (!repository.visibility && repository.owner._id.toString() !== userId) {
       const isCollaborator = repository.collaborators.includes(userId);
       if (!isCollaborator) {
         return res
@@ -372,33 +426,49 @@ const toggleStar = async (req, res) => {
       }
     }
 
+    // Convert userId to ObjectId string for consistent comparison
+    const userIdStr = userId.toString();
+
     // Check if user already starred this repository
-    const hasStarred = repository.stars.includes(userId);
+    const hasStarred = repository.stars.some(
+      (starId) => starId.toString() === userIdStr
+    );
 
     if (hasStarred) {
-      // Remove star
+      // Remove star - filter out the user's ID
       repository.stars = repository.stars.filter(
-        (starUserId) => starUserId.toString() !== userId
+        (starUserId) => starUserId.toString() !== userIdStr
       );
-      repository.starCount = repository.starCount - 1;
     } else {
-      // Add star
+      // Add star - push user ID to stars array
       repository.stars.push(userId);
-      repository.starCount = repository.starCount + 1;
     }
 
+    // Save the updated repository
     const updatedRepo = await repository.save();
 
+    // Return success response
     res.json({
       message: hasStarred
         ? "Repository unstarred successfully!"
         : "Repository starred successfully!",
-      starCount: updatedRepo.starCount,
+      starCount: updatedRepo.stars.length,
       hasStarred: !hasStarred,
+      repositoryId: repository._id,
+      repositoryName: repository.name,
     });
   } catch (error) {
     console.error("Error during star toggle: ", error.message);
-    res.status(500).send("Server Error");
+
+    // Handle specific MongoDB errors
+    if (error.name === "CastError") {
+      return res.status(400).json({ error: "Invalid repository ID format" });
+    }
+
+    res.status(500).json({
+      error: "Server Error",
+      message: "An error occurred while toggling star status",
+    });
   }
 };
 

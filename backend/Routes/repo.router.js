@@ -18,10 +18,10 @@ repoRouter.get(
 );
 
 // Star/unstar repository
-repoRouter.post("/:id/star", repoController.toggleStar);
+repoRouter.post("/star/:id", authUser, repoController.toggleStar);
 
 // Manage collaborators
-repoRouter.post("/:id/collaborators", repoController.manageCollaborators);
+repoRouter.post("/collaborators/:id", repoController.manageCollaborators);
 
 // Get repository by name with optional owner query parameter
 // Usage: GET /repo/name/my-repo?owner=username

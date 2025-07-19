@@ -52,10 +52,6 @@ const RepositorySchema = new Schema(
         ref: "User",
       },
     ],
-    starCount: {
-      type: Number,
-      default: 0,
-    },
     collaborators: [
       {
         type: Schema.Types.ObjectId,
@@ -70,6 +66,7 @@ RepositorySchema.index({ owner: 1, name: 1 }, { unique: true });
 RepositorySchema.index({ visibility: 1 });
 RepositorySchema.index({ starCount: -1 }); // for popular repos
 RepositorySchema.index({ createdAt: -1 }); // for recent repos
+RepositorySchema.index({ stars: 1 });
 
 const Repository = model("Repository", RepositorySchema);
 
