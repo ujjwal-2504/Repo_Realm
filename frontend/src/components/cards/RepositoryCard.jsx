@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Search,
   Star,
@@ -10,6 +10,7 @@ import {
   Book,
   Plus,
   Filter,
+  Loader2,
 } from "lucide-react";
 import { toggleStar } from "../../utils/repoUtilities";
 
@@ -20,6 +21,9 @@ function RepositoryCard({
   refreshRepos,
   setRefreshRepos,
 }) {
+  // Loading state for star toggle
+  const [isTogglingStar, setIsTogglingStar] = useState(false);
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -56,10 +60,18 @@ function RepositoryCard({
   };
 
   const handleStarToggle = async () => {
+    // Prevent multiple simultaneous requests
+    if (isTogglingStar) return;
+
+    setIsTogglingStar(true);
+
     try {
       await toggleStar(repo._id, refreshRepos, setRefreshRepos);
     } catch (error) {
       console.error("Error toggling star:", error);
+      // You could add a toast notification here for user feedback
+    } finally {
+      setIsTogglingStar(false);
     }
   };
 
@@ -81,24 +93,34 @@ function RepositoryCard({
             </span>
           )}
         </div>
-        {repo.visibility && (
-          <div className="flex items-center space-x-1 text-gray-400">
-            <button
-              onClick={handleStarToggle}
-              className="hover:text-yellow-400 transition-colors"
-              title={isStarred() ? "Unstar repository" : "Star repository"}
-            >
-              {isStarred() ? (
-                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              ) : (
-                <Star className="w-4 h-4 hover:text-yellow-400" />
-              )}
-            </button>
-            <span className="text-sm">
-              {repo.stars ? repo.stars.length : 0}
-            </span>
-          </div>
-        )}
+
+        <div className="flex items-center space-x-1 text-gray-400">
+          <button
+            onClick={handleStarToggle}
+            disabled={isTogglingStar}
+            className={`hover:text-yellow-400 transition-colors flex items-center justify-center w-6 h-6 ${
+              isTogglingStar
+                ? "cursor-not-allowed opacity-50"
+                : "cursor-pointer"
+            }`}
+            title={
+              isTogglingStar
+                ? "Processing..."
+                : isStarred()
+                ? "Unstar repository"
+                : "Star repository"
+            }
+          >
+            {isTogglingStar ? (
+              <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+            ) : isStarred() ? (
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+            ) : (
+              <Star className="w-4 h-4 hover:text-yellow-400" />
+            )}
+          </button>
+          <span className="text-sm">{repo.stars ? repo.stars.length : 0}</span>
+        </div>
       </div>
 
       <p className="text-gray-300 text-sm mb-3">
