@@ -5,9 +5,12 @@ import { useAuth } from "../../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import validateCredentials from "../../utils/validateCredentials";
 import axios from "axios";
+import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
 
 export default function Signup() {
   const { setCurrentUser } = useAuth();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -36,9 +39,16 @@ export default function Signup() {
       });
 
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userId", res.data.userId);
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          name: res.data.name || "name not found",
+          username: res.data.username || "username not found",
+          userId: res.data.userId,
+        })
+      );
 
-      setCurrentUser(res.data.userId);
+      setCurrentUser(JSON.parse(localStorage.getItem("userInfo")));
       setLoading(false);
 
       navigate("/");
@@ -50,15 +60,7 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-4 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Github className="w-8 h-8 text-white" />
-            <span className="text-xl font-semibold text-white">Repo Realm</span>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
@@ -74,6 +76,24 @@ export default function Signup() {
           {/* Signup Form */}
           <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 shadow-sm">
             <div className="space-y-4">
+              {/* Username */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-300 mb-1"
+                >
+                  Your name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+
               {/* Username */}
               <div>
                 <label
@@ -243,25 +263,7 @@ export default function Signup() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-800 border-t border-gray-700 px-4 py-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-wrap justify-center space-x-6 text-sm text-gray-400">
-            <a href="#" className="hover:text-gray-300">
-              Terms
-            </a>
-            <a href="#" className="hover:text-gray-300">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-gray-300">
-              Security
-            </a>
-            <a href="#" className="hover:text-gray-300">
-              Contact Repo Realm
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

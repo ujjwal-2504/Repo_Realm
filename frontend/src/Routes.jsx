@@ -5,6 +5,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Profile from "./components/user/Profile";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
+import CreateRepositoryPage from "./Pages/CreateRepositoryPage";
 
 import { useAuth } from "./AuthContext";
 
@@ -13,20 +14,24 @@ function Routes() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userIdFromStorage = localStorage.getItem("userId");
+    const userInfo = localStorage.getItem("userInfo");
 
-    if (userIdFromStorage && !currentUser) {
-      setCurrentUser(userIdFromStorage);
+    if (currentUser === null) {
+      setCurrentUser(JSON.parse(userInfo));
     }
+    // const userIdFromStorage = currentUser.userId;
 
     if (
-      !userIdFromStorage &&
+      currentUser === null &&
       !["/login", "/signup"].includes(window.location.pathname)
     ) {
       navigate("/login");
     }
 
-    if (userIdFromStorage && window.location.pathname == "/login") {
+    if (
+      currentUser &&
+      ["/login", "/signup"].includes(window.location.pathname)
+    ) {
       navigate("/");
     }
   }, [currentUser, navigate, setCurrentUser]);
@@ -47,6 +52,14 @@ function Routes() {
     {
       path: "/profile",
       element: <Profile />,
+    },
+    {
+      path: "/repo/create/",
+      element: <CreateRepositoryPage />,
+    },
+    {
+      path: "/testing",
+      element: <div>Yo man</div>,
     },
   ]);
 

@@ -52,10 +52,7 @@ function RepositoryCard({
   const isStarred = () => {
     // Check if currentUser's ID is in the stars array
     return (
-      repo.stars &&
-      repo.stars.some(
-        (starId) => starId === currentUser || starId._id === currentUser
-      )
+      repo.stars && repo.stars.some((starId) => starId === currentUser.userId)
     );
   };
 
@@ -76,7 +73,7 @@ function RepositoryCard({
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+    <div className="bg-[#141921] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Book className="w-4 h-4 text-blue-400" />

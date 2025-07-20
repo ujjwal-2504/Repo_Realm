@@ -5,12 +5,14 @@ import { useAuth } from "../../AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import validateCredentials from "../../utils/validateCredentials";
 import axios from "axios";
+import Footer from "../Footer/Footer";
+import Header from "../Header/Header";
 
 export default function Login() {
-  const { setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
 
   useEffect(() => {
-    localStorage.removeItem("userId");
+    localStorage.removeItem("userInfo");
     localStorage.removeItem("token");
     setCurrentUser(null);
   }, []);
@@ -27,7 +29,6 @@ export default function Login() {
 
     try {
       setLoading(true);
-
       if (!validateCredentials.validatePassword(password)) {
         alert("Invalid username or email or password");
         setUsernameOrEmail("");
@@ -35,19 +36,26 @@ export default function Login() {
         setLoading(false);
         return;
       }
-
       const res = await axios.post(`${envConfig.baseUrl}/login`, {
         usernameOrEmail: usernameOrEmail,
         password: password,
       });
 
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userId", res.data.userId);
-
-      setCurrentUser(res.data.userId);
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          name: res.data.name || "name not found",
+          username: res.data.username || "username not found",
+          userId: res.data.userId,
+        })
+      );
+      const userInfo = localStorage.getItem("userInfo");
+      if (userInfo) setCurrentUser(JSON.parse(userInfo));
       setLoading(false);
-
-      navigate("/");
+      console.log(currentUser);
+      // navigate("/");
+      navigate("/testing");
     } catch (error) {
       console.error(error.message);
       setLoading(false);
@@ -56,15 +64,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-4 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Github className="w-8 h-8 text-white" />
-            <span className="text-xl font-semibold text-white">Repo Realm</span>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
@@ -207,25 +207,7 @@ export default function Login() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-800 border-t border-gray-700 px-4 py-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-wrap justify-center space-x-6 text-sm text-gray-400">
-            <a href="#" className="hover:text-gray-300">
-              Terms
-            </a>
-            <a href="#" className="hover:text-gray-300">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-gray-300">
-              Security
-            </a>
-            <a href="#" className="hover:text-gray-300">
-              Contact Repo Realm
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

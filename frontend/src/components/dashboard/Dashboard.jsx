@@ -1,20 +1,12 @@
 import { useState, useEffect } from "react";
-import {
-  Search,
-  Star,
-  Eye,
-  GitFork,
-  Calendar,
-  Users,
-  Code,
-  Book,
-  Plus,
-  Filter,
-} from "lucide-react";
+import { Search, Calendar, Users, Code, Book, Plus } from "lucide-react";
 import RepositoryCard from "../cards/RepositoryCard";
 import axios from "axios";
 import envConfig from "../../config/envConfig";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
+import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
 
 function Dashboard() {
   const { currentUser } = useAuth();
@@ -103,20 +95,24 @@ function Dashboard() {
   // }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-[#010409] text-white">
+      <Header />
       <div className="flex h-screen">
         {/* Column 1: User's Repositories */}
-        <div className="w-1/4 border-r border-gray-800 p-6 overflow-y-auto">
+        <div className=" dashboard-column w-1/4 border-r border-gray-800 p-6 overflow-y-auto">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-white flex items-center">
                 <Users className="w-5 h-5 mr-2" />
                 Your Repositories
               </h2>
-              <button className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm transition-colors">
+              <Link
+                to="/repo/create"
+                className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm transition-colors"
+              >
                 <Plus className="w-4 h-4" />
                 <span>New</span>
-              </button>
+              </Link>
             </div>
 
             <div className="space-y-3">
@@ -145,7 +141,7 @@ function Dashboard() {
         </div>
 
         {/* Column 2: Suggested Repositories with Search */}
-        <div className="w-1/2 border-r border-gray-800 p-6 overflow-y-auto">
+        <div className="dashboard-column w-1/2 border-r border-gray-800 p-6 overflow-y-auto">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-white flex items-center">
@@ -188,7 +184,7 @@ function Dashboard() {
                   } repositories...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
+                  className="w-full pl-10 pr-4 py-2 bg-[#0D1117] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                 />
               </div>
             </div>
@@ -220,7 +216,7 @@ function Dashboard() {
         </div>
 
         {/* Column 3: News Updates */}
-        <div className="w-1/4 p-6 overflow-y-auto">
+        <div className=" dashboard-column w-1/4 p-6 overflow-y-auto">
           <div className="space-y-6">
             {/* Upcoming Events */}
             <div>
@@ -229,7 +225,7 @@ function Dashboard() {
                 Upcoming Events
               </h3>
               <div className="space-y-3">
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                     <div>
@@ -238,7 +234,7 @@ function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     <div>
@@ -247,7 +243,7 @@ function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
                     <div>
@@ -256,7 +252,7 @@ function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
                     <div>
@@ -275,7 +271,7 @@ function Dashboard() {
                 Developer News
               </h3>
               <div className="space-y-3">
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="border-l-4 border-blue-500 pl-3">
                     <p className="font-medium text-white text-sm">
                       New GitHub Features
@@ -286,7 +282,7 @@ function Dashboard() {
                     <p className="text-xs text-gray-500 mt-2">2 hours ago</p>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="border-l-4 border-green-500 pl-3">
                     <p className="font-medium text-white text-sm">
                       React 19 Released
@@ -297,7 +293,7 @@ function Dashboard() {
                     <p className="text-xs text-gray-500 mt-2">5 hours ago</p>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="border-l-4 border-purple-500 pl-3">
                     <p className="font-medium text-white text-sm">
                       AI Code Assistant
@@ -308,7 +304,7 @@ function Dashboard() {
                     <p className="text-xs text-gray-500 mt-2">1 day ago</p>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="border-l-4 border-orange-500 pl-3">
                     <p className="font-medium text-white text-sm">
                       Security Updates
@@ -319,7 +315,7 @@ function Dashboard() {
                     <p className="text-xs text-gray-500 mt-2">2 days ago</p>
                   </div>
                 </div>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
+                <div className="bg-[#0D1117] border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors">
                   <div className="border-l-4 border-red-500 pl-3">
                     <p className="font-medium text-white text-sm">
                       Breaking Changes
@@ -335,6 +331,7 @@ function Dashboard() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

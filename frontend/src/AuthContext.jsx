@@ -9,10 +9,10 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const userInfo = localStorage.getItem("userInfo");
 
-    if (userId) {
-      setCurrentUser(userId);
+    if (!userInfo) {
+      setCurrentUser(JSON.parse(userInfo));
     }
   }, []);
 

@@ -12,3 +12,14 @@ input[type="password"] {
   -moz-appearance: none;
   appearance: none;
 }
+
+.dashboard-column::-webkit-scrollbar {
+  width: 6px;
+}
+.dashboard-column::-webkit-scrollbar-track {
+  background: #000000;
+}
+.dashboard-column::-webkit-scrollbar-thumb {
+  background-color: #9ca3af; /* Tailwind's gray-400 */
+  border-radius: 9999px;
+}
