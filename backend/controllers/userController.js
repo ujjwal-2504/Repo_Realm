@@ -74,6 +74,7 @@ const signup = async (req, res) => {
       password: hashedPassword,
       repositories: [],
       followedUsers: [],
+      myFollowers: [],
       starredRepos: [],
     };
 
