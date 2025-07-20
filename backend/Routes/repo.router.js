@@ -5,7 +5,7 @@ const { authUser } = require("../middleware/authMiddleware");
 const repoRouter = express.Router();
 
 // Create repository
-repoRouter.post("/create", repoController.createRepository);
+repoRouter.post("/create", authUser, repoController.createRepository);
 
 // Get all public repositories
 repoRouter.get("/all", repoController.getAllRepositories);

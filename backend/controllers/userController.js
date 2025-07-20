@@ -33,10 +33,10 @@ const getAllUsers = async (req, res) => {
 };
 
 const signup = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { name, username, email, password } = req.body;
 
   // Input validation
-  if (!username || !email || !password) {
+  if (!name || !username || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -68,6 +68,7 @@ const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = {
+      name,
       username,
       email,
       password: hashedPassword,
@@ -131,7 +132,12 @@ const login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.json({ token, userId: user._id });
+    res.json({
+      token,
+      userId: user._id,
+      username: user.username,
+      name: user.name,
+    });
   } catch (error) {
     console.error("Error during login: ", error);
     res.status(500).send("Server Error!");

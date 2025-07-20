@@ -4,23 +4,19 @@ const Issue = require("../models/issueModel");
 const User = require("../models/userModel");
 
 const createRepository = async (req, res) => {
-  const { userId, name, issues, content, description, visibility, language } =
-    req.body;
+  const { name, issues, content, description, visibility, language } = req.body;
+  const { userId } = req.user;
 
   try {
     if (!name) {
       return res.status(400).json({ error: "Repository name is required" });
     }
 
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: "Invalid User Id" });
-    }
-
-    // Check if user exists
-    const userExists = await User.findById(userId);
-    if (!userExists) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    // Already checked via authUser
+    // const userExists = await User.findById(userId);
+    // if (!userExists) {
+    //   return res.status(404).json({ error: "User not found" });
+    // }
 
     // Check if repository name already exists for this user
     const existingRepo = await Repository.findOne({ name, owner: userId });
@@ -35,7 +31,7 @@ const createRepository = async (req, res) => {
       owner: userId,
       content: content || [],
       description: description || "",
-      visibility: visibility || false,
+      visibility: visibility || true,
       issues: issues || [],
       language: language || [],
       // stars array defaults to empty (defined in schema)
