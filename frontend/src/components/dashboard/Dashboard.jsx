@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { Search, Calendar, Users, Code, Book, Plus } from "lucide-react";
 import RepositoryCard from "../cards/RepositoryCard";
-import axios from "axios";
-import envConfig from "../../config/envConfig";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import {
+  fetchSuggestedRepositories,
+  fetchUserRepositories,
+} from "../../config/repository_config";
 
 function Dashboard() {
   const { currentUser } = useAuth();
@@ -20,38 +22,19 @@ function Dashboard() {
 
   // fetching user's repos from database
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const loadRepositories = async () => {
+      const token = localStorage.getItem("token");
 
-    const fetchUserRepositories = async () => {
-      try {
-        const response = await axios.get(
-          `${envConfig.baseUrl}/repo/user/repos`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+      // Fetch user's repositories
+      const userRepos = await fetchUserRepositories(token);
+      if (userRepos) setUserRepositories(userRepos);
 
-        if (response.data.repositories)
-          setUserRepositories(response.data.repositories);
-      } catch (error) {
-        console.error("Error while fetching the repositories: ", error);
-      }
+      // Fetch suggested repositories (all repositories)
+      const suggestedRepos = await fetchSuggestedRepositories();
+      if (suggestedRepos) setSuggestedRepositories(suggestedRepos);
     };
 
-    // featching all repositories from database
-    const fetchSuggestedRepositories = async () => {
-      try {
-        const response = await axios.get(`${envConfig.baseUrl}/repo/all`);
-
-        if (response.data && Array.isArray(response.data))
-          setSuggestedRepositories(response.data);
-      } catch (error) {
-        console.error("Error while fetching the repositories: ", error);
-      }
-    };
-
-    fetchUserRepositories();
-    fetchSuggestedRepositories();
+    loadRepositories();
   }, [refreshRepos]);
 
   // To search repositories

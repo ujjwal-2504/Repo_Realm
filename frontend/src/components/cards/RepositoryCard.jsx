@@ -12,7 +12,7 @@ import {
   Filter,
   Loader2,
 } from "lucide-react";
-import { toggleStar } from "../../utils/repoUtilities";
+import { toggleStar } from "../../config/repository_config";
 
 function RepositoryCard({
   repo,

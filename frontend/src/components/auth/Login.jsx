@@ -29,6 +29,9 @@ export default function Login() {
 
     try {
       setLoading(true);
+      setUsernameOrEmail(`${usernameOrEmail}`.trim());
+      setPassword(`${password}`.trim());
+
       if (!validateCredentials.validatePassword(password)) {
         alert("Invalid username or email or password");
         setUsernameOrEmail("");
@@ -53,11 +56,11 @@ export default function Login() {
       const userInfo = localStorage.getItem("userInfo");
       if (userInfo) setCurrentUser(JSON.parse(userInfo));
       setLoading(false);
-      console.log(currentUser);
-      // navigate("/");
-      navigate("/testing");
+      navigate("/");
+      // navigate("/testing");
     } catch (error) {
       console.error(error.message);
+      console.log("Error during Login: ", error.response.data);
       setLoading(false);
     }
   };
