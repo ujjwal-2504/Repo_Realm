@@ -60,8 +60,7 @@ const getAllRepositories = async (req, res) => {
     const allRepos = await Repository.find({ visibility: true })
       .populate("owner", "username email")
       .populate("issues")
-      .populate("collaborators", "username email")
-      .sort({ starCount: -1 }); // Sort by popularity
+      .populate("collaborators", "username email");
 
     res.json(allRepos);
   } catch (error) {
@@ -132,6 +131,39 @@ const fetchRepositoryByName = async (req, res) => {
 
     // Check access permissions
     const userId = req.user?.userId;
+    if (!repo.visibility && repo.owner._id.toString() !== userId) {
+      const isCollaborator = repo.collaborators.some(
+        (collaborator) => collaborator._id.toString() === userId
+      );
+
+      if (!isCollaborator) {
+        return res
+          .status(403)
+          .json({ error: "Access denied to private repository" });
+      }
+    }
+
+    res.json(repo);
+  } catch (error) {
+    console.error("Error during fetching repositories: ", error.message);
+    res.status(500).send("Server Error");
+  }
+};
+
+const fetchRepositoryByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const repo = await Repository.findOne({ owner: userId })
+      .populate("owner", "username email")
+      .populate("issues")
+      .populate("collaborators", "username email");
+
+    if (!repo) {
+      return res.status(404).json({ error: "Repository not found!" });
+    }
+
+    // Check access permissions
     if (!repo.visibility && repo.owner._id.toString() !== userId) {
       const isCollaborator = repo.collaborators.some(
         (collaborator) => collaborator._id.toString() === userId
@@ -347,56 +379,6 @@ const manageCollaborators = async (req, res) => {
 };
 
 // New function to star/unstar repository
-// const toggleStar = async (req, res) => {
-//   const { id } = req.params;
-//   const { userId } = req.user;
-
-//   try {
-//     const repository = await Repository.findById(id);
-
-//     if (!repository) {
-//       return res.status(404).json({ error: "Repository not found!" });
-//     }
-
-//     // Check if repository is accessible
-//     if (!repository.visibility && repository.owner.toString() !== userId) {
-//       const isCollaborator = repository.collaborators.includes(userId);
-//       if (!isCollaborator) {
-//         return res
-//           .status(403)
-//           .json({ error: "Access denied to private repository" });
-//       }
-//     }
-
-//     // Check if user already starred this repository
-//     const hasStarred = repository.stars.includes(userId);
-
-//     if (hasStarred) {
-//       // Remove star
-//       repository.stars = repository.stars.filter(
-//         (starUserId) => starUserId.toString() !== userId
-//       );
-//     } else {
-//       // Add star
-//       repository.stars.push(userId);
-//     }
-
-//     const updatedRepo = await repository.save();
-
-//     res.json({
-//       message: hasStarred
-//         ? "Repository unstarred successfully!"
-//         : "Repository starred successfully!",
-//       starCount: updatedRepo.stars.length,
-//       hasStarred: !hasStarred,
-//     });
-//   } catch (error) {
-//     console.error("Error during star toggle: ", error.message);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-// Updated toggleStar function for repo controller
 const toggleStar = async (req, res) => {
   const { id } = req.params;
   const { userId } = req.user;
@@ -473,6 +455,7 @@ module.exports = {
   getAllRepositories,
   fetchRepositoryById,
   fetchRepositoryByName,
+  fetchRepositoryByUserId,
   fetchRepositoryForCurrentUser,
   updateRepositoryById,
   toggleVisibilityById,

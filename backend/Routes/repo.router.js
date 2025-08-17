@@ -27,6 +27,9 @@ repoRouter.post("/collaborators/:id", repoController.manageCollaborators);
 // Usage: GET /repo/name/my-repo?owner=username
 repoRouter.get("/name/:repoName", repoController.fetchRepositoryByName);
 
+// Get user's repositories
+repoRouter.get("/user/:userId", repoController.fetchRepositoryByUserId);
+
 // Update repository
 repoRouter.put("/update/:id", repoController.updateRepositoryById);
 
