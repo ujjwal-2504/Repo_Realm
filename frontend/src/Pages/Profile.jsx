@@ -12,7 +12,6 @@ import {
   UserPlus,
   Mail,
 } from "lucide-react";
-import RepositoryCard from "../components/cards/RepositoryCard";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import { useParams } from "react-router-dom";
@@ -24,6 +23,8 @@ import {
   fetchUserRepositories,
   fetchRepositoryByUserId,
 } from "../config/repository_config";
+import { useNavigate } from "react-router-dom";
+import StarredRepositories from "../components/StarredRepositories";
 
 // default data
 const defaultUserData = {
@@ -117,6 +118,12 @@ function Profile() {
   const { userId } = useParams();
   const { currentUser } = useAuth();
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser.userId === userId) navigate("/profile/self");
+  }, [userId]);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -145,36 +152,6 @@ function Profile() {
 
     loadUserRepositories();
   }, [refreshRepos]);
-
-  const mockRepositories = [
-    {
-      name: "awesome-project",
-      description: "A really awesome project built with React and Node.js",
-      language: "JavaScript",
-      stars: 42,
-      forks: 12,
-      visibility: "Public",
-      updatedAt: "2 days ago",
-    },
-    {
-      name: "machine-learning-toolkit",
-      description: "Collection of ML algorithms and utilities",
-      language: "Python",
-      stars: 128,
-      forks: 31,
-      visibility: "Public",
-      updatedAt: "1 week ago",
-    },
-    {
-      name: "portfolio-website",
-      description: "Personal portfolio built with Next.js and Tailwind CSS",
-      language: "TypeScript",
-      stars: 15,
-      forks: 3,
-      visibility: "Public",
-      updatedAt: "3 days ago",
-    },
-  ];
 
   const stats = {
     repositories: repositories.length,
@@ -319,8 +296,12 @@ function Profile() {
 
               {activeTab === "stars" && (
                 <div className="text-center py-12 text-[#7D8590]">
-                  <Star className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No starred repositories yet</p>
+                  <StarredRepositories
+                    userId={userId === "self" ? currentUser.userId : userId}
+                    isOwner={isOwner}
+                    refreshRepos={refreshRepos}
+                    setRefreshRepos={setRefreshRepos}
+                  />
                 </div>
               )}
             </div>

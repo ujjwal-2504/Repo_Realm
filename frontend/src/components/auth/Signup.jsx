@@ -34,6 +34,7 @@ export default function Signup() {
 
       const res = await axios.post(`${envConfig.baseUrl}/signup`, {
         email: email,
+        name: name,
         username: username,
         password: password,
       });
@@ -90,7 +91,7 @@ export default function Signup() {
                   className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter your name"
                   value={name}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
 

@@ -8,6 +8,7 @@ const {
   validateEmail,
 } = require("../utils/validateCredentials");
 const User = require("../models/userModel");
+const Repository = require("../models/repoModel");
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -112,6 +113,11 @@ const getUserProfile = async (req, res) => {
 
   try {
     const idToFetch = currentId === "self" ? userId : currentId;
+
+    if (!mongoose.Types.ObjectId.isValid(idToFetch)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
     const user = await User.findById(idToFetch)
       .populate("followedUsers", "name username")
       .populate("myFollowers", "name username")
@@ -168,6 +174,32 @@ const deleteUserProfile = async (req, res) => {
   }
 };
 
+const getStarredRepositoriesOfUser = async (req, res) => {
+  const { userId } = req.user;
+  const id = req.params.id;
+
+  try {
+    const repo = await Repository.find({ stars: id })
+      .populate("owner", "username email")
+      .populate("issues")
+      .populate("collaborators", "username email");
+
+    if (repo.length === 0) {
+      return res.status(404).json({ error: "Repository not found!" });
+    }
+
+    res.json(repo);
+  } catch (error) {
+    console.error(
+      "Error during fetching star repositories of user: ",
+      id,
+      " : ",
+      error.message
+    );
+    res.status(500).send("Server Error");
+  }
+};
+
 module.exports = {
   getAllUsers,
   signup,
@@ -175,4 +207,5 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   deleteUserProfile,
+  getStarredRepositoriesOfUser,
 };

@@ -9,6 +9,7 @@ function SearchArea({
   isOwner = false,
   refreshRepos,
   setRefreshRepos,
+  Message = "Explore Repositories",
 }) {
   const { currentUser } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
@@ -81,10 +82,12 @@ function SearchArea({
       ));
     } else {
       return (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-4 text-gray-500">
           <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p className="text-lg">{`No ${queryOption}s found`}</p>
-          <p className="text-sm mt-2">Try adjusting your search query</p>
+          {searchArray.length != 0 && (
+            <p className="text-sm mt-2">Try adjusting your search query</p>
+          )}
         </div>
       );
     }
@@ -97,9 +100,7 @@ function SearchArea({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-white flex items-center">
               <Search className="w-5 h-5 mr-2" />
-              {queryOption === "repository"
-                ? "Explore Repositories"
-                : "Explore Users"}
+              {Message}
             </h2>
           </div>
 
@@ -110,9 +111,10 @@ function SearchArea({
               <input
                 type="text"
                 placeholder={placeholder}
+                disabled={searchArray.length === 0}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-[#0D1117] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
+                className={`w-full pl-10 pr-4 py-2 bg-[#0D1117] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400`}
               />
             </div>
           </div>

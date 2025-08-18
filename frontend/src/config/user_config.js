@@ -17,4 +17,25 @@ const fetchUserProfile = async (token, userId) => {
   }
 };
 
-export { fetchUserProfile };
+const fetchStarredRepositoriesOfUser = async (token, userId) => {
+  try {
+    const response = await axios.get(
+      `${envConfig.baseUrl}/userStarredRepositories/${userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error while fetching star repositories of user: ",
+      userId,
+      " : ",
+      error
+    );
+    return [];
+  }
+};
+
+export { fetchUserProfile, fetchStarredRepositoriesOfUser };

@@ -22,6 +22,7 @@ function CreateRepositoryPage({}) {
 
   const handelSubmit = async (e) => {
     e.preventDefault();
+    console.log(currentUser);
     const token = localStorage.getItem("token");
 
     try {
@@ -44,7 +45,7 @@ function CreateRepositoryPage({}) {
       // console.log(res);
       // res.data.repositoryId
       // next step redirect user to repo/repositoryId
-      navigate("/");
+      navigate("/profile/self");
       resetForm();
       setLoading(false);
     } catch (error) {

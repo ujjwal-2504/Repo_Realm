@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toggleStar } from "../../config/repository_config";
+import { Link } from "react-router-dom";
 
 function RepositoryCard({
   repo,
@@ -78,7 +79,19 @@ function RepositoryCard({
         <div className="flex items-center space-x-2">
           <Book className="w-4 h-4 text-blue-400" />
           <h3 className="font-medium text-blue-400 hover:text-blue-300 cursor-pointer">
-            {isOwner ? repo.name : `${repo.owner?.username}/${repo.name}`}
+            {isOwner ? (
+              repo.name
+            ) : (
+              <>
+                <Link
+                  to={`/profile/${repo.owner._id}`}
+                  className="hover:underline hover:text-white"
+                >
+                  {repo.owner.username}
+                </Link>
+                /{repo.name}
+              </>
+            )}
           </h3>
           {repo.visibility ? (
             <span className="bg-gray-800 text-gray-300 px-2 py-1 rounded text-xs border border-gray-600">

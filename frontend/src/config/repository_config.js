@@ -35,7 +35,7 @@ const fetchRepositoryByUserId = async (userId) => {
 
     console.log(response);
 
-    // if (response.data && Array.isArray(response.data)) return response.data;
+    if (response.data && Array.isArray(response.data)) return response.data;
     return [];
   } catch (error) {
     console.error("Error while fetching the repositories: ", error);

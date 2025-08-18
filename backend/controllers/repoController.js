@@ -154,26 +154,13 @@ const fetchRepositoryByUserId = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const repo = await Repository.findOne({ owner: userId })
+    const repo = await Repository.find({ owner: userId })
       .populate("owner", "username email")
       .populate("issues")
       .populate("collaborators", "username email");
 
-    if (!repo) {
+    if (repo.length === 0) {
       return res.status(404).json({ error: "Repository not found!" });
-    }
-
-    // Check access permissions
-    if (!repo.visibility && repo.owner._id.toString() !== userId) {
-      const isCollaborator = repo.collaborators.some(
-        (collaborator) => collaborator._id.toString() === userId
-      );
-
-      if (!isCollaborator) {
-        return res
-          .status(403)
-          .json({ error: "Access denied to private repository" });
-      }
     }
 
     res.json(repo);
