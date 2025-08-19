@@ -134,6 +134,100 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// Toggle Follow User -> Follow/Unfollow user
+const toggleFollowUser = async (req, res) => {
+  const targetUserId = req.params.id;
+  const { userId: currentUserId } = req.user;
+
+  try {
+    // Prevent self-following
+    if (currentUserId === targetUserId) {
+      return res.status(403).json({
+        success: false,
+        error: "You cannot follow yourself",
+      });
+    }
+
+    // Find both users in a single Promise.all for better performance
+    const [targetUser, currentUser] = await Promise.all([
+      User.findById(targetUserId),
+      User.findById(currentUserId),
+    ]);
+
+    // Check if target user exists
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        error: `User with ID ${targetUserId} not found`,
+      });
+    }
+
+    // Check if current user exists (shouldn't happen if auth is working properly)
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        error: "Current user not found",
+      });
+    }
+
+    // Check if already following
+    const isCurrentlyFollowing = currentUser.followedUsers.some(
+      (userId) => userId.toString() === targetUserId
+    );
+
+    let action;
+
+    if (isCurrentlyFollowing) {
+      // Unfollow: Remove target user from current user's followedUsers
+      currentUser.followedUsers = currentUser.followedUsers.filter(
+        (userId) => userId.toString() !== targetUserId
+      );
+
+      // Remove current user from target user's myFollowers
+      targetUser.myFollowers = targetUser.myFollowers.filter(
+        (userId) => userId.toString() !== currentUserId
+      );
+
+      action = "unfollowed";
+    } else {
+      // Follow: Add target user to current user's followedUsers
+      currentUser.followedUsers.push(targetUserId);
+
+      // Add current user to target user's myFollowers
+      targetUser.myFollowers.push(currentUserId);
+
+      action = "followed";
+    }
+
+    // Save both users
+    await Promise.all([currentUser.save(), targetUser.save()]);
+
+    res.json({
+      success: true,
+      message: `${currentUser.username} ${action} ${targetUser.username}`,
+      data: {
+        action,
+        targetUser: {
+          id: targetUser._id,
+          username: targetUser.username,
+          followersCount: targetUser.myFollowers.length,
+        },
+        currentUser: {
+          id: currentUser._id,
+          username: currentUser.username,
+          followingCount: currentUser.followedUsers.length,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error toggling follow status:", error.message);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
 // Update user profile
 const updateUserProfile = async (req, res) => {
   const currentId = req.params.id;
@@ -208,4 +302,5 @@ module.exports = {
   updateUserProfile,
   deleteUserProfile,
   getStarredRepositoriesOfUser,
+  toggleFollowUser,
 };

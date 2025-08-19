@@ -13,6 +13,11 @@ userRouter.get(
   authUser,
   userController.getStarredRepositoriesOfUser
 );
+userRouter.patch(
+  "/toggleFollowUser/:id",
+  authUser,
+  userController.toggleFollowUser
+);
 userRouter.put("/updateProfile/:id", userController.updateUserProfile);
 userRouter.delete("/deleteProfile/:id", userController.deleteUserProfile);
 

@@ -1,54 +1,47 @@
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-const UserSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  repositories: [
-    {
-      default: [],
-      type: Schema.Types.ObjectId,
-      ref: "Repository",
+const UserSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-  ],
-  followedUsers: [
-    {
-      default: [],
-      type: Schema.Types.ObjectId,
-      ref: "User",
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-  ],
-  myFollowers: [
-    {
-      default: [],
-      type: Schema.Types.ObjectId,
-      ref: "User",
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-  ],
-  starredRepos: [
-    {
-      default: [],
-      type: Schema.Types.ObjectId,
-      ref: "Repository",
+    password: {
+      type: String,
+      required: true,
     },
-  ],
-});
+    repositories: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Repository" }],
+      default: [],
+    },
+    followedUsers: {
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
+    myFollowers: {
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
+    starredRepos: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Repository" }],
+      default: [],
+    },
+  },
+  {
+    timestamps: true, // Adds createdAt and updatedAt fields
+  }
+);
 
 const User = model("User", UserSchema);
 
