@@ -19,10 +19,10 @@ function StarredRepositories({ userId, isOwner }) {
   }, [refreshRepos]);
 
   return repositories.length === 0 ? (
-    <>
+    <div className="text-center text-[#7D8590] mt-12">
       <Star className="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>No starred repositories yet</p>
-    </>
+    </div>
   ) : (
     <SearchArea
       queryOption="repository"
@@ -30,6 +30,7 @@ function StarredRepositories({ userId, isOwner }) {
       isOwner={isOwner}
       refreshRepos={refreshRepos}
       setRefreshRepos={setRefreshRepos}
+      Message={false}
     />
   );
 }

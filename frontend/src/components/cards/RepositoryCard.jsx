@@ -67,7 +67,6 @@ function RepositoryCard({
       await toggleStar(repo._id, refreshRepos, setRefreshRepos);
     } catch (error) {
       console.error("Error toggling star:", error);
-      // You could add a toast notification here for user feedback
     } finally {
       setIsTogglingStar(false);
     }
@@ -133,7 +132,7 @@ function RepositoryCard({
         </div>
       </div>
 
-      <p className="text-gray-300 text-sm mb-3">
+      <p className="text-gray-300 text-sm mb-3 text-start">
         {repo.description || "No description available"}
       </p>
 

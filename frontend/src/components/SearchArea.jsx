@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../AuthContext";
 import { Search, Calendar, Users, Code, Book, Plus } from "lucide-react";
 import RepositoryCard from "./cards/RepositoryCard";
+import UserCard from "./cards/UserCard";
 
 function SearchArea({
   queryOption,
@@ -9,7 +10,7 @@ function SearchArea({
   isOwner = false,
   refreshRepos,
   setRefreshRepos,
-  Message = "Explore Repositories",
+  Message = false,
 }) {
   const { currentUser } = useAuth();
   const [searchResults, setSearchResults] = useState([]);
@@ -72,19 +73,13 @@ function SearchArea({
       ));
     } else if (searchResults.length > 0 && queryOption === "user") {
       return searchResults.map((user) => (
-        <div
-          key={user._id}
-          className="p-4 bg-[#0D1117] border border-gray-700 rounded-md"
-        >
-          <p className="text-white">{user.name}</p>
-          <p className="text-gray-400 text-sm">@{user.username}</p>
-        </div>
+        <UserCard key={user._id} user={user} />
       ));
     } else {
       return (
         <div className="text-center py-4 text-gray-500">
           <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p className="text-lg">{`No ${queryOption}s found`}</p>
+          <p className="text-lg">{`No ${queryOption} found`}</p>
           {searchArray.length != 0 && (
             <p className="text-sm mt-2">Try adjusting your search query</p>
           )}
@@ -97,12 +92,14 @@ function SearchArea({
     <section>
       <div className="dashboard-column w-full px-6 overflow-y-auto">
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white flex items-center">
-              <Search className="w-5 h-5 mr-2" />
-              {Message}
-            </h2>
-          </div>
+          {Message != false && (
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-white flex items-center">
+                <Search className="w-5 h-5 mr-2" />
+                {Message}
+              </h2>
+            </div>
+          )}
 
           {/* Search and Filter Controls */}
           <div className="space-y-3 mb-6">

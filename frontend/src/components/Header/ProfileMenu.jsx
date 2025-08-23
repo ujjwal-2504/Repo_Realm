@@ -121,7 +121,10 @@ export default function ProfileMenu() {
           </Link>
         </MenuItem>
         <MenuItem>
-          <Link className="flex items-center gap-2">
+          <Link
+            to="/profile/self?tab=stars"
+            className="flex items-center gap-2"
+          >
             <Star className="text-amber-300" /> Your Stars
           </Link>
         </MenuItem>
