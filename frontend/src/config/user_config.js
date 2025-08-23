@@ -38,4 +38,31 @@ const fetchStarredRepositoriesOfUser = async (token, userId) => {
   }
 };
 
-export { fetchUserProfile, fetchStarredRepositoriesOfUser };
+const toggleFollowUser = async (
+  token,
+  userId,
+  refreshUserData,
+  setRefreshUserData
+) => {
+  try {
+    const response = await axios.patch(
+      `${envConfig.baseUrl}/toggleFollowUser/${userId}`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setRefreshUserData(!refreshUserData);
+  } catch (error) {
+    console.error(
+      "Error while toggling the follow user: ",
+      userId,
+      " : ",
+      error
+    );
+    return [];
+  }
+};
+
+export { fetchUserProfile, fetchStarredRepositoriesOfUser, toggleFollowUser };

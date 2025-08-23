@@ -33,8 +33,6 @@ const fetchRepositoryByUserId = async (userId) => {
       `${envConfig.baseUrl}/repo/user/${userId}`
     );
 
-    console.log(response);
-
     if (response.data && Array.isArray(response.data)) return response.data;
     return [];
   } catch (error) {

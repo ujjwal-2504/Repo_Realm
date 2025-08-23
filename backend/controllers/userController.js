@@ -172,7 +172,7 @@ const toggleFollowUser = async (req, res) => {
 
     // Check if already following
     const isCurrentlyFollowing = currentUser.followedUsers.some(
-      (userId) => userId.toString() === targetUserId
+      (userId) => userId.toString() === targetUserId.toString()
     );
 
     let action;
@@ -180,12 +180,12 @@ const toggleFollowUser = async (req, res) => {
     if (isCurrentlyFollowing) {
       // Unfollow: Remove target user from current user's followedUsers
       currentUser.followedUsers = currentUser.followedUsers.filter(
-        (userId) => userId.toString() !== targetUserId
+        (userId) => userId.toString() !== targetUserId.toString()
       );
 
       // Remove current user from target user's myFollowers
       targetUser.myFollowers = targetUser.myFollowers.filter(
-        (userId) => userId.toString() !== currentUserId
+        (userId) => userId.toString() !== currentUserId.toString()
       );
 
       action = "unfollowed";

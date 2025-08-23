@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   MapPin,
   ExternalLink,
@@ -25,6 +25,7 @@ import {
 } from "../config/repository_config";
 import { useNavigate } from "react-router-dom";
 import StarredRepositories from "../components/StarredRepositories";
+import UserCard from "../components/cards/UserCard";
 
 // default data
 const defaultUserData = {
@@ -36,84 +37,15 @@ const defaultUserData = {
   starredRepos: [],
   name: "User000",
   myFollowers: [],
-  // bio: "Passionate developer building amazing things with code",
-  // location: "San Francisco, CA",
-  // website: "https://user001.dev",
-  // joinedDate: "2023-01-15",
-  // avatarUrl:
-  //   "https://static.vecteezy.com/system/resources/previews/005/005/788/non_2x/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg",
 };
-
-// Mock contribution data for the activity graph
-// const generateContributionData = () => {
-//   const data = [];
-//   const today = new Date();
-//   for (let i = 364; i >= 0; i--) {
-//     const date = new Date(today);
-//     date.setDate(date.getDate() - i);
-//     data.push({
-//       date: date.toISOString().split("T")[0],
-//       count: Math.floor(Math.random() * 5),
-//     });
-//   }
-//   return data;
-// };
-
-// const ContributionGraph = ({ data }) => {
-//   const getColor = (count) => {
-//     if (count === 0) return "#0D1117";
-//     if (count === 1) return "#0E4429";
-//     if (count === 2) return "#006D32";
-//     if (count === 3) return "#26A641";
-//     return "#39D353";
-//   };
-
-//   const weeks = [];
-//   for (let i = 0; i < data.length; i += 7) {
-//     weeks.push(data.slice(i, i + 7));
-//   }
-
-//   return (
-//     <div className="bg-[#0D1117] border border-[#30363D] rounded-lg p-4">
-//       <h3 className="text-sm font-medium mb-3 text-[#F0F6FC]">
-//         Contribution Activity
-//       </h3>
-//       <div className="flex gap-1 overflow-x-auto">
-//         {weeks.map((week, weekIndex) => (
-//           <div key={weekIndex} className="flex flex-col gap-1">
-//             {week.map((day, dayIndex) => (
-//               <div
-//                 key={dayIndex}
-//                 className="w-2.5 h-2.5 rounded-sm"
-//                 style={{ backgroundColor: getColor(day.count) }}
-//                 title={`${day.count} contributions on ${day.date}`}
-//               />
-//             ))}
-//           </div>
-//         ))}
-//       </div>
-//       <div className="flex items-center justify-between mt-3 text-xs text-[#7D8590]">
-//         <span>Less</span>
-//         <div className="flex gap-1">
-//           <div className="w-2.5 h-2.5 rounded-sm bg-[#0D1117]"></div>
-//           <div className="w-2.5 h-2.5 rounded-sm bg-[#0E4429]"></div>
-//           <div className="w-2.5 h-2.5 rounded-sm bg-[#006D32]"></div>
-//           <div className="w-2.5 h-2.5 rounded-sm bg-[#26A641]"></div>
-//           <div className="w-2.5 h-2.5 rounded-sm bg-[#39D353]"></div>
-//         </div>
-//         <span>More</span>
-//       </div>
-//     </div>
-//   );
-// };
 
 function Profile() {
   const [userData, setUserData] = useState(defaultUserData);
   const [contributionData, setContributionData] = useState([]);
   const [activeTab, setActiveTab] = useState("repositories");
-  const [isFollowing, setIsFollowing] = useState(false);
   const [repositories, setRepositories] = useState([]);
   const [refreshRepos, setRefreshRepos] = useState(true);
+  const [refreshUserData, setRefreshUserData] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
   const { userId } = useParams();
   const { currentUser } = useAuth();
@@ -122,19 +54,30 @@ function Profile() {
 
   useEffect(() => {
     if (currentUser.userId === userId) navigate("/profile/self");
-  }, [userId]);
+
+    const currentUrlTab = new URLSearchParams(window.location.search).get(
+      "tab"
+    );
+
+    if (["followers", "following", "stars"].includes(currentUrlTab)) {
+      setActiveTab(currentUrlTab);
+    } else {
+      setActiveTab("repositories");
+    }
+  }, [userId, currentUser.userId, navigate]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     const loadUserProfile = async () => {
       const userProfile = await fetchUserProfile(token, userId);
-      if (userProfile) setUserData(userProfile);
+      if (userProfile) {
+        setUserData(userProfile);
+      }
     };
 
     loadUserProfile();
-    // setContributionData(generateContributionData());
-  }, []);
+  }, [refreshUserData, userId]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -145,19 +88,25 @@ function Profile() {
       if (userId === "self") {
         userRepos = await fetchUserRepositories(token);
         setIsOwner(true);
-      } else userRepos = await fetchRepositoryByUserId(userId);
+      } else {
+        userRepos = await fetchRepositoryByUserId(userId);
+      }
 
-      setRepositories(userRepos);
+      setRepositories(userRepos || []);
     };
 
     loadUserRepositories();
-  }, [refreshRepos]);
+  }, [refreshRepos, userId]);
 
-  const stats = {
-    repositories: repositories.length,
-    followers: userData.myFollowers.length,
-    following: userData.followedUsers.length,
-  };
+  // FIXED: Use useMemo to derive stats instead of separate state
+  const stats = useMemo(
+    () => ({
+      repositories: repositories.length,
+      followers: userData.myFollowers ? userData.myFollowers : [],
+      following: userData.followedUsers ? userData.followedUsers : [],
+    }),
+    [repositories.length, userData.myFollowers, userData.followedUsers]
+  );
 
   return (
     <div className="min-h-screen bg-[#010409] text-white">
@@ -167,9 +116,9 @@ function Profile() {
           {/* Left Sidebar - Profile Info */}
           <ProfileInfoCard
             userData={userData}
-            stats={stats}
-            isFollowing={isFollowing}
-            setIsFollowing={setIsFollowing}
+            stats={stats} // FIXED: Pass stats object directly
+            refreshUserData={refreshUserData}
+            setRefreshUserData={setRefreshUserData}
           />
 
           {/* Main Content */}
@@ -202,10 +151,10 @@ function Profile() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                     Followers
                     <span className="bg-[#30363D] text-xs px-2 py-1 rounded-full">
-                      0
+                      {stats.followers.length}
                     </span>
                   </div>
                 </button>
@@ -218,10 +167,10 @@ function Profile() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                     Following
                     <span className="bg-[#30363D] text-xs px-2 py-1 rounded-full">
-                      0
+                      {stats.following.length}
                     </span>
                   </div>
                 </button>
@@ -241,68 +190,58 @@ function Profile() {
               </nav>
             </div>
 
-            {/* Contribution Graph */}
-            {/* <ContributionGraph data={contributionData} /> */}
-
             {/* Content based on active tab */}
             <div className="mt-6">
               {activeTab === "repositories" && (
-                // <div>
-                //   <div className="flex items-center justify-between mb-4">
-                //     <h2 className="text-xl font-semibold">Repositories</h2>
-                //   </div>
-                //   {repositories.length > 0 ? (
-                //     <div className="grid gap-4">
-                //       {repositories.map((repo) => (
-                //         <RepositoryCard
-                //           key={repo._id}
-                //           repo={repo}
-                //           isOwner={isOwner}
-                //           currentUser={currentUser}
-                //           refreshRepos={refreshRepos}
-                //           setRefreshRepos={setRefreshRepos}
-                //         />
-                //       ))}
-                //     </div>
-                //   ) : (
-                //     <div className="text-center py-12 text-[#7D8590]">
-                //       <Book className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                //       <p>No repositories yet</p>
-                //     </div>
-                //   )}
-                // </div>
                 <SearchArea
                   queryOption="repository"
                   searchArray={repositories}
                   isOwner={isOwner}
                   refreshRepos={refreshRepos}
                   setRefreshRepos={setRefreshRepos}
+                  Message={false}
                 />
               )}
 
               {activeTab === "followers" && (
-                <div className="text-center py-12 text-[#7D8590]">
-                  <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No followers yet</p>
+                <div className="text-center text-[#7D8590] mt-12">
+                  {stats.followers.length === 0 ? (
+                    <>
+                      <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No Followers Yet</p>
+                    </>
+                  ) : (
+                    <SearchArea
+                      queryOption="user"
+                      searchArray={stats.followers}
+                    />
+                  )}
                 </div>
               )}
 
               {activeTab === "following" && (
-                <div className="text-center py-12 text-[#7D8590]">
-                  <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No following</p>
+                <div className="text-center text-[#7D8590] mt-12">
+                  {stats.following.length === 0 ? (
+                    <>
+                      <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Zero Following</p>
+                    </>
+                  ) : (
+                    <SearchArea
+                      queryOption="user"
+                      searchArray={stats.following}
+                    />
+                  )}
                 </div>
               )}
 
               {activeTab === "stars" && (
-                <div className="text-center py-12 text-[#7D8590]">
-                  <StarredRepositories
-                    userId={userId === "self" ? currentUser.userId : userId}
-                    isOwner={isOwner}
-                    refreshRepos={refreshRepos}
-                    setRefreshRepos={setRefreshRepos}
-                  />
-                </div>
+                <StarredRepositories
+                  userId={userId === "self" ? currentUser.userId : userId}
+                  isOwner={isOwner}
+                  refreshRepos={refreshRepos}
+                  setRefreshRepos={setRefreshRepos}
+                />
               )}
             </div>
           </div>

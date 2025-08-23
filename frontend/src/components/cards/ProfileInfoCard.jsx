@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   ExternalLink,
@@ -6,9 +6,61 @@ import {
   Users,
   UserPlus,
   Mail,
+  Pencil,
 } from "lucide-react";
+import { useAuth } from "../../AuthContext";
+import { toggleFollowUser } from "../../config/user_config";
 
-const ProfileInfoCard = ({ userData, stats, isFollowing, setIsFollowing }) => {
+const ProfileInfoCard = ({
+  userData,
+  stats,
+  refreshUserData,
+  setRefreshUserData,
+}) => {
+  const { currentUser } = useAuth();
+
+  const token = localStorage.getItem("token");
+
+  // Loading state for follow toggle
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false);
+
+  const checkIsFollowing = () => {
+    // Check if currentUser's ID is in the myFollowers array of Targeted User
+    return (
+      userData.myFollowers.length > 0 &&
+      userData.myFollowers.some(
+        (user) => user._id.toString() === currentUser.userId.toString()
+      )
+    );
+  };
+
+  const [isFollowing, setIsFollowing] = useState(checkIsFollowing());
+
+  // FIXED: Add useEffect to sync isFollowing state with userData changes
+  useEffect(() => {
+    setIsFollowing(checkIsFollowing());
+  }, [userData.myFollowers, currentUser.userId]);
+
+  const handelFollow = async () => {
+    // Prevent multiple simultaneous requests
+    if (isTogglingFollow) return;
+
+    setIsTogglingFollow(true);
+
+    try {
+      const response = await toggleFollowUser(
+        token,
+        userData._id,
+        refreshUserData,
+        setRefreshUserData
+      );
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+    } finally {
+      setIsTogglingFollow(false);
+    }
+  };
+
   return (
     <div className="lg:col-span-1">
       <div className="sticky top-8">
@@ -23,20 +75,29 @@ const ProfileInfoCard = ({ userData, stats, isFollowing, setIsFollowing }) => {
           <p className="text-xl text-[#7D8590] mb-3">{userData.username}</p>
 
           <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => setIsFollowing(!isFollowing)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                isFollowing
-                  ? "bg-[#21262D] border border-[#30363D] hover:border-[#F85149] hover:bg-[#DA3633]/10 text-[#F0F6FC]"
-                  : "bg-[#238636] hover:bg-[#2EA043] text-white"
-              }`}
-            >
-              <UserPlus className="w-4 h-4" />
-              {isFollowing ? "Following" : "Follow"}
-            </button>
-            <button className="p-2 bg-[#21262D] border border-[#30363D] rounded-lg hover:border-[#58A6FF] transition-colors">
-              <Mail className="w-4 h-4" />
-            </button>
+            {userData._id === currentUser.userId ? (
+              <button className=" flex items-center justify-center gap-2 p-2 bg-[#21262D] border border-[#30363D] rounded-lg hover:border-[#58A6FF] transition-colors w-64">
+                <Pencil className="w-4 h-4" />
+                Edit Profile
+              </button>
+            ) : (
+              <button
+                onClick={() => handelFollow()}
+                disabled={isTogglingFollow}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors w-64 justify-center ${
+                  isFollowing
+                    ? "bg-[#21262D] border border-[#30363D] hover:border-[#F85149] hover:bg-[#DA3633]/10 text-[#F0F6FC]"
+                    : "bg-[#238636] hover:bg-[#2EA043] text-white"
+                } ${isTogglingFollow ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <UserPlus className="w-4 h-4" />
+                {isTogglingFollow
+                  ? "Loading..."
+                  : isFollowing
+                  ? "Following"
+                  : "Follow"}
+              </button>
+            )}
           </div>
 
           {userData.bio && (
@@ -44,11 +105,11 @@ const ProfileInfoCard = ({ userData, stats, isFollowing, setIsFollowing }) => {
           )}
 
           {/* Additional Info */}
-          <div className="space-y-2 text-sm text-[#7D8590]">
-            {userData.location && (
+          <div className="space-y-2 text-sm text-gray-200">
+            {userData.email && (
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span>{userData.location}</span>
+                <Mail className="w-4 h-4" />
+                <span>{userData.email}</span>
               </div>
             )}
             {userData.website && (
@@ -79,13 +140,13 @@ const ProfileInfoCard = ({ userData, stats, isFollowing, setIsFollowing }) => {
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4" />
               <span className="font-medium text-[#F0F6FC]">
-                {stats.followers}
+                {stats.followers.length}
               </span>
               <span className="text-[#7D8590]">followers</span>
             </div>
             <div className="flex items-center gap-1">
               <span className="font-medium text-[#F0F6FC]">
-                {stats.following}
+                {stats.following.length}
               </span>
               <span className="text-[#7D8590]">following</span>
             </div>
