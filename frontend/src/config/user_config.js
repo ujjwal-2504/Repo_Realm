@@ -65,4 +65,26 @@ const toggleFollowUser = async (
   }
 };
 
-export { fetchUserProfile, fetchStarredRepositoriesOfUser, toggleFollowUser };
+const getActivityByUserId = async (userId) => {
+  try {
+    const response = await axios.get(
+      `${envConfig.baseUrl}/user/activity/${userId}`
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error while fetching the activity of the user: ",
+      userId,
+      " : ",
+      error
+    );
+  }
+};
+
+export {
+  fetchUserProfile,
+  fetchStarredRepositoriesOfUser,
+  toggleFollowUser,
+  getActivityByUserId,
+};

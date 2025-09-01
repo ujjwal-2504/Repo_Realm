@@ -9,6 +9,7 @@ const {
 } = require("../utils/validateCredentials");
 const User = require("../models/userModel");
 const Repository = require("../models/repoModel");
+const { trackActivity } = require("../controllers/activityController");
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -64,6 +65,8 @@ const signup = async (req, res) => {
       expiresIn: "7d",
     });
 
+    await trackActivity(newUser._id);
+
     res.status(201).json({ token, userId: newUser._id });
   } catch (error) {
     console.error("Error during signup:", error);
@@ -94,6 +97,7 @@ const login = async (req, res) => {
 
     // Sign token
     const token = jwt.sign({ id: user._id }, jwtSecretKey, { expiresIn: "7d" });
+    await trackActivity(user._id.toString()); // Track Activity
     res.json({
       token,
       userId: user._id,
@@ -202,6 +206,7 @@ const toggleFollowUser = async (req, res) => {
     // Save both users
     await Promise.all([currentUser.save(), targetUser.save()]);
 
+    await trackActivity(currentUserId.toString()); // Track Activity
     res.json({
       success: true,
       message: `${currentUser.username} ${action} ${targetUser.username}`,
@@ -247,6 +252,9 @@ const updateUserProfile = async (req, res) => {
       { new: true }
     );
     if (!updated) return res.status(404).json({ message: "User not found" });
+
+    await trackActivity(currentId.toString()); // Track Activity
+
     res.json({ message: "Profile updated", user: updated });
   } catch (error) {
     console.error("Error updating profile:", error);

@@ -26,6 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import StarredRepositories from "../components/StarredRepositories";
 import UserCard from "../components/cards/UserCard";
+import HeatMapProfile from "../components/HeatMap";
 
 // default data
 const defaultUserData = {
@@ -41,8 +42,7 @@ const defaultUserData = {
 
 function Profile() {
   const [userData, setUserData] = useState(defaultUserData);
-  const [contributionData, setContributionData] = useState([]);
-  const [activeTab, setActiveTab] = useState("repositories");
+  const [activeTab, setActiveTab] = useState("contributions");
   const [repositories, setRepositories] = useState([]);
   const [refreshRepos, setRefreshRepos] = useState(true);
   const [refreshUserData, setRefreshUserData] = useState(true);
@@ -59,10 +59,14 @@ function Profile() {
       "tab"
     );
 
-    if (["followers", "following", "stars"].includes(currentUrlTab)) {
+    if (
+      ["followers", "following", "stars", "repositories"].includes(
+        currentUrlTab
+      )
+    ) {
       setActiveTab(currentUrlTab);
     } else {
-      setActiveTab("repositories");
+      setActiveTab("contributions");
     }
   }, [userId, currentUser.userId, navigate]);
 
@@ -126,6 +130,19 @@ function Profile() {
             {/* Navigation Tabs */}
             <div className="border-b border-[#30363D] mb-6">
               <nav className="flex gap-8">
+                <button
+                  onClick={() => setActiveTab("contributions")}
+                  className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
+                    activeTab === "contributions"
+                      ? "border-[#F78166] text-[#F0F6FC]"
+                      : "border-transparent text-[#7D8590] hover:text-[#F0F6FC]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Book className="w-4 h-4" />
+                    Contributions
+                  </div>
+                </button>
                 <button
                   onClick={() => setActiveTab("repositories")}
                   className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
@@ -192,6 +209,12 @@ function Profile() {
 
             {/* Content based on active tab */}
             <div className="mt-6">
+              {activeTab === "contributions" && (
+                <HeatMapProfile
+                  userId={userId === "self" ? currentUser.userId : userId}
+                />
+              )}
+
               {activeTab === "repositories" && (
                 <SearchArea
                   queryOption="repository"

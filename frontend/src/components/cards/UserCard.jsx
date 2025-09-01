@@ -9,7 +9,7 @@ function UserCard({ user }) {
   if (redirectId === currentUser.userId) setRedirectId("self");
 
   return (
-    <Link to={`/profile/${redirectId}?tab=repositories`}>
+    <Link to={`/profile/${redirectId}?tab=contributions`}>
       <div className="p-4 bg-[#0D1117] border border-gray-700 rounded-md cursor-pointer hover:bg-gray-800">
         <p className="text-white">{user.name}</p>
         <p className="text-gray-400 text-sm">@{user.username}</p>

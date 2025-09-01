@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Repository = require("../models/repoModel");
 const Issue = require("../models/issueModel");
 const User = require("../models/userModel");
+const { trackActivity } = require("../controllers/activityController");
 
 const createRepository = async (req, res) => {
   const { name, issues, content, description, visibility, language } = req.body;
@@ -11,12 +12,6 @@ const createRepository = async (req, res) => {
     if (!name) {
       return res.status(400).json({ error: "Repository name is required" });
     }
-
-    // Already checked via authUser
-    // const userExists = await User.findById(userId);
-    // if (!userExists) {
-    //   return res.status(404).json({ error: "User not found" });
-    // }
 
     // Check if repository name already exists for this user
     const existingRepo = await Repository.findOne({ name, owner: userId });
@@ -44,6 +39,8 @@ const createRepository = async (req, res) => {
     if (!result) {
       throw new Error("Repository not created");
     }
+
+    await trackActivity(userId.toString()); // Track Activity
 
     return res
       .status(201)
@@ -237,6 +234,8 @@ const updateRepositoryById = async (req, res) => {
 
     const updatedRepo = await repo.save();
 
+    await trackActivity(userId.toString()); // Track Activity
+
     res.json({
       message: "Repository updated successfully!!",
       updatedRepo,
@@ -268,6 +267,8 @@ const toggleVisibilityById = async (req, res) => {
     repository.visibility = !repository.visibility;
 
     const updatedRepo = await repository.save();
+
+    await trackActivity(userId.toString()); // Track Activity
 
     res.json({
       message: "Repository visibility toggled successfully!!",
@@ -301,6 +302,8 @@ const deleteRepositoryById = async (req, res) => {
     }
 
     await Repository.findByIdAndDelete(id);
+
+    await trackActivity(userId.toString()); // Track Activity
 
     res.json({ message: "Repository deleted successfully!!" });
   } catch (error) {
@@ -411,6 +414,8 @@ const toggleStar = async (req, res) => {
 
     // Save the updated repository
     const updatedRepo = await repository.save();
+
+    await trackActivity(userId.toString()); // Track Activity
 
     // Return success response
     res.json({
